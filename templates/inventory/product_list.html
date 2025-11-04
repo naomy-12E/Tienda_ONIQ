@@ -1,0 +1,148 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section relative bg-gradient-to-r from-gray-900 to-black text-white flex items-center justify-center mb-12">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative z-10 text-center px-4">
+        <h1 class="text-5xl md:text-7xl font-bold mb-4">ONIQ</h1>
+        <p class="text-xl md:text-2xl mb-8">Elegancia en cada detalle</p>
+        <a href="#products" class="btn-primary inline-block">
+            Descubre la Colección
+        </a>
+    </div>
+</section>
+
+<!-- Categorías -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Nuestras Categorías</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {% for category in categories %}
+            <div class="category-card bg-gray-100 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300">
+                <div class="h-48 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+                    <span class="text-3xl font-bold text-white">{{ category.name }}</span>
+                </div>
+                <div class="p-4 text-center">
+                    <h3 class="text-xl font-semibold">{{ category.name }}</h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Productos -->
+<section id="products" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Nuestra Colección</h2>
+        
+        <!-- Filtros -->
+        <div class="mb-8">
+            <form method="GET" class="flex flex-wrap gap-4 justify-center">
+                <div class="w-full md:w-auto">
+                    <input type="text" name="search" value="{{ search_query }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black"
+                           placeholder="Buscar productos...">
+                </div>
+                <div class="w-full md:w-auto">
+                    <select name="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-search mr-2"></i>Buscar
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de Productos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for product in products %}
+            <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-cover">
+                {% else %}
+                    <div class="w-full h-64 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+                        <span class="text-3xl font-bold text-white">ONIQ</span>
+                    </div>
+                {% endif %}
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h2 class="text-xl font-bold mb-2">{{ product.name }}</h2>
+                        <p class="text-gray-600 text-sm mb-2">SKU: {{ product.sku }}</p>
+                        <p class="text-gray-600">{{ product.description }}</p>
+                    </div>
+
+                    <!-- Tallas -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Tallas disponibles:</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for size in product.sizes %}
+                            <button onclick="selectSize(this)" 
+                                    class="size-btn px-3 py-1 border border-gray-300 rounded-md text-sm hover:border-black">
+                                {{ size }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Colores -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Colores disponibles:</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for color in product.colors %}
+                            <button onclick="selectColor(this)"
+                                    class="color-btn px-3 py-1 border border-gray-300 rounded-md text-sm hover:border-black">
+                                {{ color }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-2xl font-bold">${{ product.price }}</span>
+                        {% if product.stock > 0 %}
+                            <form method="post" action="{% url 'add_to_cart' product.id %}" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="size" id="selected_size_{{ product.id }}" required>
+                                <input type="hidden" name="color" id="selected_color_{{ product.id }}" required>
+                                <button type="submit" class="btn-primary flex items-center">
+                                    <i class="fas fa-shopping-cart mr-2"></i>
+                                    Agregar
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="px-4 py-2 bg-red-100 text-red-800 rounded-md">Agotado</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500 text-xl">No se encontraron productos.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Sección de Newsletter -->
+<section class="py-16 bg-black text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">Únete a la familia ONIQ</h2>
+        <p class="mb-8">Recibe las últimas novedades y ofertas exclusivas</p>
+        <form class="max-w-md mx-auto flex gap-4">
+            <input type="email" placeholder="Tu correo electrónico" 
+                   class="flex-1 px-4 py-2 rounded-lg focus:ring-2 focus:ring-white bg-gray-900 border-0">
+            <button type="submit" class="btn-primary">Suscribirse</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

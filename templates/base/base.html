@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONIQ Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #ffffff;
+        }
+        .logo {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #666;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <nav class="bg-black text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'home' %}" class="logo">ONIQ</a>
+            <div class="space-x-4">
+                {% if user.is_authenticated %}
+                    {% if user.is_vendor %}
+                        <a href="{% url 'manage_inventory' %}" class="nav-link">Inventario</a>
+                    {% endif %}
+                    <a href="{% url 'product_list' %}" class="nav-link">Productos</a>
+                    <a href="{% url 'logout' %}" class="nav-link">Cerrar Sesión</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">Iniciar Sesión</a>
+                    <a href="{% url 'register' %}" class="nav-link">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8 px-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-gray-100 border-l-4 border-black p-4 mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-black text-white mt-16 py-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; {% now "Y" %} ONIQ. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
